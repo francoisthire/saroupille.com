@@ -1,0 +1,7 @@
+(rule
+  (target 01-born.html)
+  (deps 01-born.md)
+  (action    
+    (run pandoc
+      %{deps}
+      -o %{target})))

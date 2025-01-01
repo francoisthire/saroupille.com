@@ -1,0 +1,9 @@
+[
+  {
+      "date": "2025-01-01",
+      "title": "A blog is born",
+      "description": "First article of this blog explaining how it was made",
+      "kind": "post",
+      "filename": "content/01-born.html"
+  }
+]

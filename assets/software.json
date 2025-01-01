@@ -1,0 +1,17 @@
+[
+    {
+        "name": "Bam",
+        "description": "A PBT framework with internal shrinking (PPX included)",
+        "url": "https://github.com/francoisthire/bam"
+    },
+    {
+        "name": "Tezt-bam",
+        "description": "A Tezt integration of Bam with a user-friendly debugging experience",
+        "url": "https://github.com/francoisthire/bam"
+    },
+    {
+        "name": "Chords",
+        "description": "An implementation of The Noise cryptopgrahic protocol enabling secured connections",
+        "url": "https://github.com/francoisthire/chords"
+    }
+]

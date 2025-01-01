@@ -1,0 +1,28 @@
+.about-section {
+  display: flex;
+  /* Creates a flex container to arrange its child elements (text and image) in a row or column. */
+  flex-wrap: wrap;
+  /* Ensures child elements can wrap onto the next line when there isn't enough horizontal space. */
+  align-items: center;
+  /* Aligns child elements along the vertical axis, centering them within the container. */
+  justify-content: center;
+  /* Aligns child elements horizontally, centering them with equal space distribution. */
+  margin: 1em 0;
+  /* Adds vertical spacing above and below the section for better separation. */
+}
+
+.about-text {
+  flex: 1;
+  /* Allows the text block to grow and take up available horizontal space, keeping the image aligned to the right. */
+  min-width: 300px;
+  /* Prevents the text block from shrinking too much, triggering wrapping if the container becomes too narrow. */
+  margin-right: 1em;
+  /* Adds spacing between the text block and the image to enhance readability. */
+}
+
+.about-image img {
+  max-width: 180px;
+  /* Limits the maximum width of the image to maintain consistent visual proportions. */
+  border-radius: 4px;
+  /* Softens the corners of the image for a modern and visually appealing look. */
+}
