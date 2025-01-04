@@ -14,7 +14,7 @@ WORKDIR /root
 ## Probably some of those dependencies are not necessary
 RUN apk add autoconf automake bash build-base ca-certificates opam gcc \ 
   git rsync gmp-dev libev-dev openssl-libs-static pkgconf zlib-static \
-  openssl-dev zlib-dev
+  openssl-dev zlib-dev pandoc
 
 RUN opam init --bare --yes --disable-sandboxing
 COPY dune-project .
@@ -32,7 +32,8 @@ FROM build_environment AS builder
 
 COPY bin ./bin
 COPY assets ./assets
-RUN eval $(opam env) && dune build bin/main.exe --profile=static
+RUN cd assets/content && eval $(opam env) && dune build .
+RUN eval $(opam env) && dune build . --profile=static
 
 # This stage builds a docker image containing only the website binary
 FROM alpine:3.21 AS website
@@ -42,5 +43,5 @@ COPY --from=builder /root/_build/default/bin/main.exe /bin/main.exe
 # The website runs on port 8080
 EXPOSE 8080
 
-ENTRYPOINT "/bin/main.exe"
+ENTRYPOINT ["/bin/main.exe"]
 
