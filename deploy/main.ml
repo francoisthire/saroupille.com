@@ -260,7 +260,7 @@ module Gcloud = struct
   (* This command can be used to connect on the VM via SSH. Gcloud does the key management for you. *)
   let compute_ssh ?command () =
     Process.run "gcloud"
-    @@ [ "compute"; "ssh"; "website-test"; "--zone"; "us-central1-c" ]
+    @@ [ "compute"; "ssh"; "website"; "--zone"; "us-central1-c" ]
     @ match command with None -> [] | Some command -> [ "--" ] @ command
 
   let projects_add_iam_policy_binding () =
@@ -310,21 +310,9 @@ module Gcloud = struct
   let compute_firewall_rules_deny ~rule_name =
     let* project_id = project_id () in
     let command mode =
-      [
-        "compute";
-        "firewall-rules";
-        mode;
-        rule_name;
-        "--project";
-        project_id;
-        "--action";
-        "deny";
-        "--rules";
-        "tcp:80,tcp:443";
-        "--priority";
-        "2000";
-        "--quiet";
-      ]
+      [ "compute"; "firewall-rules"; mode; rule_name; "--project"; project_id ]
+      @ (if mode = "create" then [ "--action"; "DENY" ] else [])
+      @ [ "--rules"; "tcp:80,tcp:443"; "--priority"; "2000"; "--quiet" ]
     in
     let process = Process.spawn "gcloud" (command "update") in
     let* status = Process.wait process in
