@@ -236,6 +236,26 @@ module Head = struct
           type_ "text/css";
           media "screen and (prefers-color-scheme: dark)";
         ];
+      link
+        [
+          rel "stylesheet";
+          href
+            "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/default.min.css";
+          type_ "text/css";
+        ];
+      script
+        [
+          src
+            "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js";
+        ]
+        "";
+      script
+        [
+          src
+            "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/ocaml.min.js";
+        ]
+        "";
+      script [] "hljs.highlightAll()";
       (* Sakura CSS can be overrided by ad-hoc classes. They are listed below. *)
       link [ rel "stylesheet"; href "/assets/about.css"; type_ "text/css" ];
     ]

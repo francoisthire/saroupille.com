@@ -2,6 +2,6 @@
   (target 01-born.html)
   (deps 01-born.md)
   (action    
-    (run pandoc
+    (run pandoc --highlight-style=pygments
       %{deps}
-      -o %{target})))
+      -o %{target} --toc)))
