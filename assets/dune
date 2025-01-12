@@ -6,8 +6,14 @@
 (rule
  (target assets.ml)
  (deps
-  (source_tree .))
+  (glob_files *.json)
+  (glob_files images/*.png)
+  (glob_files images/*.jpeg)
+  (glob_files *.css)
+  (glob_files *.html)
+  (glob_files content/*.html)
+  (glob_files content/*.md))
  (action
   (with-stdout-to
    ${null}
-   (run ocaml-crunch -e html -e css -e json -e jpeg -m plain . -o %{target}))))
+   (run ocaml-crunch -e html -e css -e json -e jpeg -e png -m plain . -o %{target}))))

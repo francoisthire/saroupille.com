@@ -1,11 +1,3 @@
-;; The rule below enable to use --profile static
-;; See https://soap.coffee/~lthms/posts/OCamlStaticBinaries.html
-
-(env
- (static
-  (flags
-   (:standard -cclib -static))))
-
 ;; Building the main executable
 
 (executable
