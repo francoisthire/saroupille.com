@@ -3,4 +3,6 @@
 (executable
  (public_name saroupille_website)
  (name main)
- (libraries dream dream-html tezt assets))
+ (libraries dream dream-html tezt assets)
+ ;; FIXME: Add this only when using static profile
+ (flags (:standard -ccopt -static)))

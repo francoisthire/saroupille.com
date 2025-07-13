@@ -413,6 +413,7 @@ let () =
   let* docker_uri = Gcloud.docker_uri () in
   let* () = Process.run "docker" [ "build"; "-t"; docker_uri; "." ] in
   let* () = Process.run "docker" [ "push"; docker_uri ] in
+  (* FIXME: Before stopping the website, ensure the docker run command works. *)
   let* () = Gcloud.compute_ssh ~command:[ "docker"; "stop"; "website" ] () in
   let* () = Gcloud.compute_ssh ~command:[ "docker"; "pull"; docker_uri ] () in
   let* () =
