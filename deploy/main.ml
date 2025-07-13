@@ -407,7 +407,7 @@ let () =
 
 let () =
   Test.register ~__FILE__ ~title:"Update the docker image on the Gcloud VM"
-    ~tags:[ "gcloud"; "update" ]
+    ~tags:[ "gcloud"; "vm"; "update" ]
   @@ fun () ->
   let* () = Process.run "gcloud" [ "auth"; "configure-docker" ] in
   let* docker_uri = Gcloud.docker_uri () in

@@ -166,8 +166,17 @@ dune exec deploy/main.exe -- deploy create -v
 For updates:
 
 ```sh
-dune exec deploy/main.exe -- update -v
+dune exec deploy/main.exe -- vm update -v
 ```
+
+This last command performs the following actions:
+
+1. Builds the Docker image containing the latest version of the website.
+2. Pushes the Docker image to the GCP Artifact Registry.
+3. Fetches the Docker image on the VM.
+4. Restarts the website using the new Docker image.
+
+Use this command whenever you want to deploy a new version of the website.
 
 More details are and will be provided in the
 [repository](https://github.com/francoisthire/saroupille.com).
