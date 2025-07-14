@@ -1,0 +1,6 @@
+*
+!Dockerfile
+!dune-project
+!saroupille_website.opam
+!bin/**
+!assets/**
