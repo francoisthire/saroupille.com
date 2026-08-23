@@ -5,9 +5,22 @@ module Cli = struct
   let section =
     Clap.section ~description:"Arguments for deploying website" "deployment"
 
-  (* Cloudflare supports tokens, but I had a hard time to configure it properly.
-     Hence we are using an API key and an address mail for authentification.
-  *)
+  (* A scoped token is the credential Cloudflare recommends: it can be limited
+     to this zone and these four permissions, revoked on its own, and given an
+     expiry. The global key below opens the entire account and is kept only as
+     a fallback so that pulling this change cannot break a deploy. *)
+  let cloudflare_api_token =
+    Clap.default_string ~section
+      ~description:
+        "Cloudflare API token scoped to this zone (or the environment variable \
+         'CLOUDFLARE_API_TOKEN'). Needs Zone:Read, DNS:Edit, Page Rules:Edit \
+         and Cache Purge:Purge. Preferred over the global key."
+      ~long:"cloudflare-api-token"
+    @@
+    match Sys.getenv_opt "CLOUDFLARE_API_TOKEN" with
+    | None -> ""
+    | Some value -> value
+
   let cloudflare_api_key =
     Clap.default_string ~section
       ~description:
@@ -43,34 +56,51 @@ module Cli = struct
 end
 
 module Cloudflare = struct
+  (* Which credential to send. A token is one header; the global key needs two
+     and is announced every time, because it grants far more than this deploy
+     needs. *)
+  let auth_headers () =
+    if Cli.cloudflare_api_token <> "" then
+      [
+        "-H";
+        Format.asprintf "Authorization: Bearer %s" Cli.cloudflare_api_token;
+      ]
+    else if Cli.cloudflare_api_mail <> "" && Cli.cloudflare_api_key <> "" then (
+      Log.warn
+        "Authenticating with the global Cloudflare API key, which grants the \
+         whole account. Prefer --cloudflare-api-token, scoped to this zone.";
+      [
+        "-H";
+        Format.asprintf "X-Auth-Email: %s" Cli.cloudflare_api_mail;
+        "-H";
+        Format.asprintf "X-Auth-Key: %s" Cli.cloudflare_api_key;
+      ])
+    else
+      Test.fail
+        "No Cloudflare credential. Pass --cloudflare-api-token (or \
+         CLOUDFLARE_API_TOKEN), or the legacy --cloudflare-email with \
+         --cloudflare-api-key."
+
   (* Wrap an API call with authentification header. *)
   let with_auth ?(meth = "GET") ?data path =
-    let mail =
-      if Cli.cloudflare_api_mail = "" then
-        Test.fail "Please specify your cloudflare mail with '--mail'"
-      else Cli.cloudflare_api_mail
-    in
-    let key =
-      if Cli.cloudflare_api_key = "" then
-        Test.fail "Please specify your cloudflare global key with '--key'"
-      else Cli.cloudflare_api_key
-    in
     let* output =
       Process.run_and_read_stdout "curl"
-      @@ [
-           "-X";
-           meth;
-           path;
-           "-H";
-           Format.asprintf "X-Auth-Email: %s" mail;
-           "-H";
-           Format.asprintf "X-Auth-Key: %s" key;
-           "-H";
-           "Content-Type: application/json";
-         ]
+      @@ [ "-X"; meth; path ]
+      @ auth_headers ()
+      @ [ "-H"; "Content-Type: application/json" ]
       @ match data with None -> [] | Some data -> [ "--data"; data ]
     in
-    Lwt.return (JSON.parse ~origin:"with_token" output)
+    let json = JSON.parse ~origin:"cloudflare" output in
+    (* Cloudflare answers 200-with-success:false, or 403 for a token short of
+       one permission, and puts the reason in `errors`. Without this check the
+       deploy walked on and died several calls later on an empty JSON path,
+       which is what makes a token look impossible to configure. *)
+    (match JSON.(json |-> "success" |> as_bool_opt) with
+    | Some false ->
+        Test.fail "Cloudflare refused %s %s: %s" meth path
+          JSON.(json |-> "errors" |> encode)
+    | Some true | None -> ());
+    Lwt.return json
 
   let get_zone () = with_auth "https://api.cloudflare.com/client/v4/zones"
 
