@@ -6,5 +6,5 @@
  (libraries dream dream-html tezt assets))
 
 (env
- (profile static
+ (static
   (flags (:standard -ccopt -static))))
