@@ -260,7 +260,17 @@ module Gcloud = struct
   (* This command can be used to connect on the VM via SSH. Gcloud does the key management for you. *)
   let compute_ssh ?command () =
     Process.run "gcloud"
-    @@ [ "compute"; "ssh"; "website"; "--zone"; "us-central1-c" ]
+    @@ [
+         "compute";
+         "ssh";
+         "website";
+         "--zone";
+         "us-central1-c";
+         (* Port 22 is closed to the internet: the only way in is the IAP
+            tunnel. Without this flag gcloud aims at the external IP and the
+            deploy stops at the first docker command. *)
+         "--tunnel-through-iap";
+       ]
     @ match command with None -> [] | Some command -> [ "--" ] @ command
 
   let projects_add_iam_policy_binding () =
@@ -422,7 +432,10 @@ let () =
         [
           "docker";
           "run";
-          "--rm";
+          (* Not --rm: it makes the container vanish when it stops, so a VM
+             reboot leaves the site down until someone redeploys by hand.
+             --rm and --restart are mutually exclusive, hence the swap. *)
+          "--restart=unless-stopped";
           "-d";
           "--name";
           "website";
